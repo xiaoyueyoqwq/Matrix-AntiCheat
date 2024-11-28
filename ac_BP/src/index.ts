@@ -3,12 +3,17 @@ class MatrixAnti_MCPE {
         initialized: false,
         runTime: Date.now(),
     };
-    public constructor() {
-        disableWatchdogTimingWarnings(true);
-        // Prevent the script from crashing
-        Minecraft.system.beforeEvents.watchdogTerminate.subscribe(this.watchDogTerminate);
-        // Initialize the matrix anticheat
-        Minecraft.world.afterEvents.worldInitialize.subscribe(this.onWorldInitialize);
+    public constructor () {
+        import("@minecraft/debug-utilities")
+            .then((debug) => {
+                debugImport = debug.disableWatchdogTimingWarnings;
+                debugImport(true);
+            })
+            .catch((_error) => console.warn("Index :: server is not allowing debug utilities"))
+            .finally(() => {
+                Minecraft.system.beforeEvents.watchdogTerminate.subscribe(this.watchDogTerminate);
+                Minecraft.world.afterEvents.worldInitialize.subscribe(this.onWorldInitialize);
+            });
     }
     private readonly onWorldInitialize = async () => {
         const { world, system } = Minecraft;
@@ -19,7 +24,24 @@ class MatrixAnti_MCPE {
         }
         // Launch the anticheat.
         await this.importAll()
-            .catch((e) => console.error(e))
+            .catch((e) => {
+                new Promise<void>(resolve => {
+                    const id = system.runInterval(() => {
+                        if (world.getAllPlayers().length > 0) {
+                            resolve();
+                            system.clearRun(id);
+                        }
+                    }, 100);
+                }).then(() => {
+                    world.sendMessage({ rawtext: [
+                        {
+                            translate: "index.importerror",
+                            with: []
+                        }
+                    ]});
+                })
+                sendErr(e);
+            })
             .then(() => {
                 // Log the initialization time.
                 if (Dynamic.config().sendInitMsg) {
@@ -154,7 +176,6 @@ class MatrixAnti_MCPE {
         await import("./Core/Utility/Defender");
         await import("./Core/Utility/AntiAFK");
         await import("./Core/Utility/AntiGrief");
-        await import("./Core/Utility/JoinInfo");
         //await import("./Core/Movement/Air Jump"); // Not ready yet
         // Use the register data to initialize the modules
         const sucessAmount = await intilizeModules();
@@ -174,8 +195,8 @@ class MatrixAnti_MCPE {
         if (config.createScoreboard && !Minecraft.world.scoreboard.getObjective("matrix:api")) {
             Minecraft.world.scoreboard.addObjective("matrix:api", "").setScore("matrix:beta-api-enabled", -2048);
         }
-        Minecraft.system.runTimeout(() => {
-            disableWatchdogTimingWarnings(false);
+        if (debugImport) Minecraft.system.runTimeout(() => {
+            debugImport(false);
         }, 200);
         return;
     };
@@ -189,10 +210,12 @@ class MatrixAnti_MCPE {
 }
 const Index = new MatrixAnti_MCPE();
 export default Index;
+let debugImport: any;
 import * as Minecraft from "@minecraft/server";
 import { initialize } from "./Functions/Config/dynamic_config";
 import { intilizeModules } from "./Core/Modules";
 import Dynamic from "./Functions/Config/dynamic_config";
 import { dataBaseInitialize } from "./Functions/Config/config_database";
 import { onceTrue } from "./Assets/Util";
-import { disableWatchdogTimingWarnings } from "@minecraft/debug-utilities";
+import { sendErr } from "./Functions/chatModel/CommandHandler";
+//import { disableWatchdogTimingWarnings } from "@minecraft/debug-utilities";

@@ -24,6 +24,10 @@ msgstr ""
 msgid "Matrix has been completely initialized in %s ms"
 msgstr ""
 
+#: index.importerror
+msgid "§bMatrix §7> §cOops, something went wrong during the intialize import of Matrix AntiCheat :sad:"
+msgstr ""
+
 #: function.gainop
 msgid "§bMatrix §7> §gYou have verified your operator permission, use chat command '<prefix>op' directly to get the matrix admin permission"
 msgstr ""
@@ -906,7 +910,7 @@ msgstr ""
 
 #: action.hint.exit.console.r4isen1920_invsee:inventory
 msgid "Press §l:_input_key.inventory:§r to open their Inventory"
-msgstr "" 
+msgstr ""
 
 #: protection.behavior
 msgid "§bMatrix §7>§g Behavior protection has blocked a player's access successfully. §7(Player=%s)"
@@ -999,6 +1003,7 @@ msgstr ""
 #: defender.title
 msgid "Realm Defender | Anti Bot Verification"
 msgstr ""
+
 #: defender.selectui
 msgid "§a- Answer the following simple question to pass the verification, you're required to answer this question in 3 minutes."
 msgstr ""
@@ -1081,8 +1086,4 @@ msgstr ""
 
 #: tps.tps
 msgid "Server current tick(s) per second is §7(§a%s/§a20§7)"
-msgstr ""
-
-#: tpa.accept
-msgid "§bMatrix §7>§g You have accepted the teleport request from %s."
 msgstr ""
